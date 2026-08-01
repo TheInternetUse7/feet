@@ -18,7 +18,7 @@ RUN corepack enable && pnpm install --prod --frozen-lockfile
 
 COPY --from=builder /app/dist ./dist
 
-RUN useradd --create-home appuser
+RUN useradd --create-home appuser && mkdir -p /app/data && chown appuser:appuser /app/data
 USER appuser
 
 VOLUME /app/data
