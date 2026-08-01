@@ -1,19 +1,16 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { Events, parsePrefixCommand } from '@fluxerjs/core';
-import type { Client, Message } from '@fluxerjs/core';
-import type { DatabaseSync } from 'node:sqlite';
-import type { ToeModule, ToeContext } from '../types/toe.js';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { Events, parsePrefixCommand } from "@fluxerjs/core";
+import type { Client, Message } from "@fluxerjs/core";
+import type { DatabaseSync } from "node:sqlite";
+import type { ToeModule, ToeContext } from "../types/toe.js";
 
-const PREFIX = '.';
+const PREFIX = ".";
 
-export async function loadToes(
-  client: Client,
-  db: DatabaseSync,
-): Promise<Map<string, ToeModule>> {
+export async function loadToes(client: Client, db: DatabaseSync): Promise<Map<string, ToeModule>> {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const toesDir = path.resolve(__dirname, '..', 'toes');
+  const toesDir = path.resolve(__dirname, "..", "toes");
   const entries = await fs.readdir(toesDir, { withFileTypes: true });
   const modules = new Map<string, ToeModule>();
   const prefixMap = new Map<string, ToeModule>();
@@ -22,12 +19,12 @@ export async function loadToes(
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
 
-    const toePath = path.join(toesDir, entry.name, 'index.js');
+    const toePath = path.join(toesDir, entry.name, "index.js");
     try {
       const mod = await import(pathToFileURL(toePath).href);
       const toe: ToeModule = mod.default ?? mod.toe;
 
-      if (!toe || typeof toe.name !== 'string' || typeof toe.execute !== 'function') {
+      if (!toe || typeof toe.name !== "string" || typeof toe.execute !== "function") {
         console.warn(`[TOE] Skipping ${entry.name}: invalid module shape`);
         continue;
       }
@@ -42,7 +39,9 @@ export async function loadToes(
         prefixMap.set(cmd, toe);
       }
 
-      console.log(`[TOE] Loaded: ${toe.name} (${toe.prefixCommands.map(c => `${PREFIX}${c}`).join(', ')})`);
+      console.log(
+        `[TOE] Loaded: ${toe.name} (${toe.prefixCommands.map((c) => `${PREFIX}${c}`).join(", ")})`,
+      );
     } catch (err) {
       console.error(`[TOE] Failed to load ${entry.name}:`, err);
     }
@@ -56,7 +55,7 @@ export async function loadToes(
 
     const { command, args } = parsed;
 
-    if (command === 'help') {
+    if (command === "help") {
       if (args[0]) {
         const toe = modules.get(args[0]);
         await message.reply(toe ? toe.help : `Unknown command: ${args[0]}`);
@@ -64,7 +63,11 @@ export async function loadToes(
         const lines = Array.from(modules.values()).map(
           (t) => `**${PREFIX}${t.prefixCommands[0]}** — ${t.description}`,
         );
-        await message.reply(lines.length ? `${lines.join('\n')}\n\nUse \`.help <command>\` for details.` : 'No commands loaded.');
+        await message.reply(
+          lines.length
+            ? `${lines.join("\n")}\n\nUse \`.help <command>\` for details.`
+            : "No commands loaded.",
+        );
       }
       return;
     }

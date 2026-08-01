@@ -1,4 +1,4 @@
-import type { DatabaseSync } from 'node:sqlite';
+import type { DatabaseSync } from "node:sqlite";
 
 export interface ReminderItem {
   id: number;
@@ -30,25 +30,30 @@ export function addReminder(
   triggerAt: Date,
 ): ReminderItem {
   const stmt = db.prepare(
-    'INSERT INTO toe_reminder_items (user_id, channel_id, message, trigger_at) VALUES (?, ?, ?, ?)',
+    "INSERT INTO toe_reminder_items (user_id, channel_id, message, trigger_at) VALUES (?, ?, ?, ?)",
   );
-  const result = stmt.run(userId, channelId, message, triggerAt.toISOString().replace('T', ' ').replace('Z', ''));
-  return db.prepare('SELECT * FROM toe_reminder_items WHERE id = ?').get(result.lastInsertRowid) as unknown as ReminderItem;
+  const result = stmt.run(
+    userId,
+    channelId,
+    message,
+    triggerAt.toISOString().replace("T", " ").replace("Z", ""),
+  );
+  return db
+    .prepare("SELECT * FROM toe_reminder_items WHERE id = ?")
+    .get(result.lastInsertRowid) as unknown as ReminderItem;
 }
 
 export function listPending(db: DatabaseSync, userId: string): ReminderItem[] {
   return db
     .prepare(
-      'SELECT * FROM toe_reminder_items WHERE user_id = ? AND is_sent = 0 ORDER BY trigger_at',
+      "SELECT * FROM toe_reminder_items WHERE user_id = ? AND is_sent = 0 ORDER BY trigger_at",
     )
     .all(userId) as unknown as ReminderItem[];
 }
 
 export function cancelReminder(db: DatabaseSync, id: number, userId: string): boolean {
   const result = db
-    .prepare(
-      'DELETE FROM toe_reminder_items WHERE id = ? AND user_id = ? AND is_sent = 0',
-    )
+    .prepare("DELETE FROM toe_reminder_items WHERE id = ? AND user_id = ? AND is_sent = 0")
     .run(id, userId);
   return result.changes > 0;
 }
@@ -62,5 +67,5 @@ export function getDueReminders(db: DatabaseSync): ReminderItem[] {
 }
 
 export function markSent(db: DatabaseSync, id: number): void {
-  db.prepare('UPDATE toe_reminder_items SET is_sent = 1 WHERE id = ?').run(id);
+  db.prepare("UPDATE toe_reminder_items SET is_sent = 1 WHERE id = ?").run(id);
 }

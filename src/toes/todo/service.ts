@@ -1,4 +1,4 @@
-import type { DatabaseSync } from 'node:sqlite';
+import type { DatabaseSync } from "node:sqlite";
 
 export interface TodoItem {
   id: number;
@@ -24,23 +24,21 @@ export function initTable(db: DatabaseSync): void {
 export function addTask(db: DatabaseSync, userId: string, task: string): TodoItem {
   return db
     .prepare(
-      'INSERT INTO toe_todo_items (user_id, task) VALUES (?, ?) RETURNING id, user_id, task, completed_at, created_at',
+      "INSERT INTO toe_todo_items (user_id, task) VALUES (?, ?) RETURNING id, user_id, task, completed_at, created_at",
     )
     .get(userId, task) as unknown as TodoItem;
 }
 
 export function listPending(db: DatabaseSync, userId: string): TodoItem[] {
   return db
-    .prepare(
-      'SELECT * FROM toe_todo_items WHERE user_id = ? AND completed_at IS NULL ORDER BY id',
-    )
+    .prepare("SELECT * FROM toe_todo_items WHERE user_id = ? AND completed_at IS NULL ORDER BY id")
     .all(userId) as unknown as TodoItem[];
 }
 
 export function listCompleted(db: DatabaseSync, userId: string): TodoItem[] {
   return db
     .prepare(
-      'SELECT * FROM toe_todo_items WHERE user_id = ? AND completed_at IS NOT NULL ORDER BY completed_at DESC, id DESC',
+      "SELECT * FROM toe_todo_items WHERE user_id = ? AND completed_at IS NOT NULL ORDER BY completed_at DESC, id DESC",
     )
     .all(userId) as unknown as TodoItem[];
 }
@@ -56,16 +54,14 @@ export function completeTask(db: DatabaseSync, id: number, userId: string): bool
 
 export function clearCompleted(db: DatabaseSync, userId: string): number {
   const result = db
-    .prepare(
-      'DELETE FROM toe_todo_items WHERE user_id = ? AND completed_at IS NOT NULL',
-    )
+    .prepare("DELETE FROM toe_todo_items WHERE user_id = ? AND completed_at IS NOT NULL")
     .run(userId);
   return result.changes as number;
 }
 
 export function removeTask(db: DatabaseSync, id: number, userId: string): boolean {
   const result = db
-    .prepare('DELETE FROM toe_todo_items WHERE id = ? AND user_id = ?')
+    .prepare("DELETE FROM toe_todo_items WHERE id = ? AND user_id = ?")
     .run(id, userId);
   return result.changes > 0;
 }

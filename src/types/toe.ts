@@ -1,5 +1,5 @@
-import type { Client, Message } from '@fluxerjs/core';
-import type { DatabaseSync } from 'node:sqlite';
+import type { Client, Message } from "@fluxerjs/core";
+import type { DatabaseSync } from "node:sqlite";
 
 export interface ToeContext {
   client: Client;

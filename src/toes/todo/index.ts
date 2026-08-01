@@ -1,7 +1,7 @@
-import { EmbedBuilder } from '@fluxerjs/core';
-import type { ToeModule, ToeContext } from '../../types/toe.js';
-import type { Message } from '@fluxerjs/core';
-import * as service from './service.js';
+import { EmbedBuilder } from "@fluxerjs/core";
+import type { ToeModule, ToeContext } from "../../types/toe.js";
+import type { Message } from "@fluxerjs/core";
+import * as service from "./service.js";
 
 const ID_RE = /^[1-9]\d*$/;
 const LIST_LIMIT = 20;
