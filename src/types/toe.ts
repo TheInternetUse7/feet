@@ -9,6 +9,7 @@ export interface ToeContext {
 export interface ToeModule {
   name: string;
   description: string;
+  help: string;
   prefixCommands: string[];
   init?: (ctx: ToeContext) => Promise<void> | void;
   execute: (message: Message, ctx: ToeContext, args: string[]) => Promise<void>;

@@ -55,6 +55,20 @@ export async function loadToes(
     if (!parsed) return;
 
     const { command, args } = parsed;
+
+    if (command === 'help') {
+      if (args[0]) {
+        const toe = modules.get(args[0]);
+        await message.reply(toe ? toe.help : `Unknown command: ${args[0]}`);
+      } else {
+        const lines = Array.from(modules.values()).map(
+          (t) => `**${PREFIX}${t.prefixCommands[0]}** — ${t.description}`,
+        );
+        await message.reply(lines.length ? `${lines.join('\n')}\n\nUse \`.help <command>\` for details.` : 'No commands loaded.');
+      }
+      return;
+    }
+
     const toe = prefixMap.get(command);
     if (!toe) return;
 
