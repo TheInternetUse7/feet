@@ -18,8 +18,28 @@ export function initTable(db: DatabaseSync): void {
       message TEXT NOT NULL,
       trigger_at TIMESTAMP NOT NULL,
       is_sent INTEGER DEFAULT 0
-    )
+    );
+    CREATE TABLE IF NOT EXISTS toe_reminder_prefs (
+      user_id TEXT PRIMARY KEY,
+      delivery_mode TEXT NOT NULL DEFAULT 'channel' CHECK (delivery_mode IN ('channel', 'dm'))
+    );
   `);
+}
+
+export type DeliveryMode = "channel" | "dm";
+
+export function getDeliveryMode(db: DatabaseSync, userId: string): DeliveryMode {
+  const row = db
+    .prepare("SELECT delivery_mode FROM toe_reminder_prefs WHERE user_id = ?")
+    .get(userId) as { delivery_mode: string } | undefined;
+  return row?.delivery_mode === "dm" ? "dm" : "channel";
+}
+
+export function setDeliveryMode(db: DatabaseSync, userId: string, mode: DeliveryMode): void {
+  db.prepare(
+    `INSERT INTO toe_reminder_prefs (user_id, delivery_mode) VALUES (?, ?)
+     ON CONFLICT(user_id) DO UPDATE SET delivery_mode = excluded.delivery_mode`,
+  ).run(userId, mode);
 }
 
 export function addReminder(

@@ -33,6 +33,7 @@ const reminderToe: ToeModule = {
     "**`.remind in <duration> <message>`** — Set a reminder (e.g., `.remind in 10m Check oven`)",
     "**`.remind list`** — Show pending reminders",
     "**`.remind cancel <id>`** — Cancel a pending reminder",
+    "**`.remind dm on|off`** — Deliver reminders via DM instead of the channel (falls back to channel if DMs are blocked)",
     "",
     "Durations: `Ns`, `Nm`, `Nh`, `Nd`",
   ].join("\n"),
@@ -102,6 +103,24 @@ const reminderToe: ToeModule = {
       return;
     }
 
+    if (sub === "dm") {
+      const mode = args[1]?.toLowerCase();
+      if (mode === "on" || mode === "off") {
+        service.setDeliveryMode(ctx.db, message.author.id, mode === "on" ? "dm" : "channel");
+        await message.reply(
+          mode === "on"
+            ? "Reminders will be sent via DM (with fallback to this channel if DMs are blocked)."
+            : "Reminders will be sent in the channel they were created in.",
+        );
+        return;
+      }
+      const current = service.getDeliveryMode(ctx.db, message.author.id);
+      await message.reply(
+        current === "dm" ? "DM delivery is **on**." : "DM delivery is **off** (channel delivery).",
+      );
+      return;
+    }
+
     if (sub === "cancel") {
       const id = parseInt(args[1], 10);
       if (isNaN(id)) {
@@ -117,7 +136,7 @@ const reminderToe: ToeModule = {
       return;
     }
 
-    await message.reply("Usage: `.remind <in|list|cancel>`");
+    await message.reply("Usage: `.remind <in|list|cancel|dm>`");
   },
 
   async destroy() {
