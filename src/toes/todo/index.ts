@@ -1,16 +1,24 @@
-import { EmbedBuilder } from "@fluxerjs/core";
-import type { ToeModule, ToeContext } from "../../types/toe.js";
-import type { Message } from "@fluxerjs/core";
-import * as service from "./service.js";
+import { EmbedBuilder } from '@fluxerjs/core';
+import type { ToeModule, ToeContext } from '../../types/toe.js';
+import type { Message } from '@fluxerjs/core';
+import * as service from './service.js';
+
+const ID_RE = /^[1-9]\d*$/;
+const LIST_LIMIT = 20;
+
+function parseId(str: string | undefined): number | null {
+  return str !== undefined && ID_RE.test(str) ? parseInt(str, 10) : null;
+}
 
 const todoToe: ToeModule = {
   name: "todo",
-  description: "Manage personal and channel task lists",
+  description: "Manage your personal task list",
   help: [
     "**`.todo add <task>`** - Add a new task",
-    "**`.todo list`** - List pending tasks",
+    "**`.todo list [done]`** - List pending tasks (add `done` for completed)",
     "**`.todo done <id>`** - Mark a task as completed",
-    "**`.todo clear`** - Remove all completed tasks",
+    "**`.todo remove <id>`** - Delete a task",
+    "**`.todo clear --yes`** - Remove all completed tasks (requires confirmation)",
   ].join("\n"),
   prefixCommands: ["todo"],
 
@@ -27,60 +35,66 @@ const todoToe: ToeModule = {
         await message.reply("Usage: `.todo add <task>`");
         return;
       }
-      const item = service.addTask(
-        ctx.db,
-        message.author.id,
-        message.guildId,
-        task,
-      );
+      const item = service.addTask(ctx.db, message.author.id, task);
       await message.reply(`Task #${item.id} added: **${item.task}**`);
       return;
     }
 
     if (sub === "list") {
-      const items = service.listPending(
-        ctx.db,
-        message.author.id,
-        message.guildId,
-      );
+      const showDone = args[1]?.toLowerCase() === "done";
+      const items = showDone
+        ? service.listCompleted(ctx.db, message.author.id)
+        : service.listPending(ctx.db, message.author.id);
       if (items.length === 0) {
-        await message.reply("No pending tasks.");
+        await message.reply(showDone ? "No completed tasks." : "No pending tasks.");
         return;
       }
+      const shown = items.slice(0, LIST_LIMIT);
+      const lines = shown.map((i) => `\`#${i.id}\` ${i.task}`);
+      if (items.length > LIST_LIMIT) {
+        lines.push(`...and ${items.length - LIST_LIMIT} more`);
+      }
       const embed = new EmbedBuilder()
-        .setTitle("Pending Tasks")
-        .setColor(0x5865f2)
-        .setDescription(items.map((i) => `\`#${i.id}\` ${i.task}`).join("\n"));
+        .setTitle(showDone ? "Completed Tasks" : "Pending Tasks")
+        .setColor(showDone ? 0x57f287 : 0x5865f2)
+        .setDescription(lines.join("\n"));
       await message.reply({ embeds: [embed] });
       return;
     }
 
-    if (sub === "done") {
-      const id = parseInt(args[1], 10);
-      if (isNaN(id)) {
-        await message.reply("Usage: `.todo done <id>`");
+    if (sub === "done" || sub === "remove") {
+      const id = parseId(args[1]);
+      if (id === null) {
+        await message.reply(`Usage: \`.todo ${sub} <id>\``);
         return;
       }
-      const ok = service.completeTask(ctx.db, id, message.author.id);
+      const ok =
+        sub === "done"
+          ? service.completeTask(ctx.db, id, message.author.id)
+          : service.removeTask(ctx.db, id, message.author.id);
       if (!ok) {
         await message.reply(`Task #${id} not found or already completed.`);
         return;
       }
-      await message.reply(`Task #${id} marked as completed.`);
+      await message.reply(
+        sub === "done" ? `Task #${id} marked as completed.` : `Task #${id} removed.`,
+      );
       return;
     }
 
     if (sub === "clear") {
-      const count = service.clearCompleted(
-        ctx.db,
-        message.author.id,
-        message.guildId,
-      );
-      await message.reply(`Cleared ${count} completed task(s).`);
+      if (args[1] !== "--yes") {
+        await message.reply(
+          "This permanently deletes all completed tasks. Run `.todo clear --yes` to confirm.",
+        );
+        return;
+      }
+      const count = service.clearCompleted(ctx.db, message.author.id);
+      await message.reply(`Cleared ${count} task${count === 1 ? "" : "s"}.`);
       return;
     }
 
-    await message.reply("Usage: `.todo <add|list|done|clear>`");
+    await message.reply("Usage: `.todo <add|list|done|remove|clear>`");
   },
 };
 
