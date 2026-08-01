@@ -3,14 +3,14 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Events, parsePrefixCommand } from '@fluxerjs/core';
 import type { Client, Message } from '@fluxerjs/core';
-import type Database from 'better-sqlite3';
+import type { DatabaseSync } from 'node:sqlite';
 import type { ToeModule, ToeContext } from '../types/toe.js';
 
 const PREFIX = '.';
 
 export async function loadToes(
   client: Client,
-  db: Database.Database,
+  db: DatabaseSync,
 ): Promise<Map<string, ToeModule>> {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const toesDir = path.resolve(__dirname, '..', 'toes');

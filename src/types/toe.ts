@@ -1,9 +1,9 @@
 import type { Client, Message } from '@fluxerjs/core';
-import type Database from 'better-sqlite3';
+import type { DatabaseSync } from 'node:sqlite';
 
 export interface ToeContext {
   client: Client;
-  db: Database.Database;
+  db: DatabaseSync;
 }
 
 export interface ToeModule {

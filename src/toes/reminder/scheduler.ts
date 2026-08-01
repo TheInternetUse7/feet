@@ -1,8 +1,8 @@
 import type { Client } from '@fluxerjs/core';
-import type Database from 'better-sqlite3';
+import type { DatabaseSync } from 'node:sqlite';
 import * as service from './service.js';
 
-export function startScheduler(client: Client, db: Database.Database): NodeJS.Timeout {
+export function startScheduler(client: Client, db: DatabaseSync): NodeJS.Timeout {
   return setInterval(async () => {
     try {
       const due = service.getDueReminders(db);

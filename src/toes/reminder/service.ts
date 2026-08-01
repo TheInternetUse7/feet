@@ -1,4 +1,4 @@
-import type Database from 'better-sqlite3';
+import type { DatabaseSync } from 'node:sqlite';
 
 export interface ReminderItem {
   id: number;
@@ -9,7 +9,7 @@ export interface ReminderItem {
   is_sent: number;
 }
 
-export function initTable(db: Database.Database): void {
+export function initTable(db: DatabaseSync): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS toe_reminder_items (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,7 +23,7 @@ export function initTable(db: Database.Database): void {
 }
 
 export function addReminder(
-  db: Database.Database,
+  db: DatabaseSync,
   userId: string,
   channelId: string,
   message: string,
@@ -33,18 +33,18 @@ export function addReminder(
     'INSERT INTO toe_reminder_items (user_id, channel_id, message, trigger_at) VALUES (?, ?, ?, ?)',
   );
   const result = stmt.run(userId, channelId, message, triggerAt.toISOString().replace('T', ' ').replace('Z', ''));
-  return db.prepare('SELECT * FROM toe_reminder_items WHERE id = ?').get(result.lastInsertRowid) as ReminderItem;
+  return db.prepare('SELECT * FROM toe_reminder_items WHERE id = ?').get(result.lastInsertRowid) as unknown as ReminderItem;
 }
 
-export function listPending(db: Database.Database, userId: string): ReminderItem[] {
+export function listPending(db: DatabaseSync, userId: string): ReminderItem[] {
   return db
     .prepare(
       'SELECT * FROM toe_reminder_items WHERE user_id = ? AND is_sent = 0 ORDER BY trigger_at',
     )
-    .all(userId) as ReminderItem[];
+    .all(userId) as unknown as ReminderItem[];
 }
 
-export function cancelReminder(db: Database.Database, id: number, userId: string): boolean {
+export function cancelReminder(db: DatabaseSync, id: number, userId: string): boolean {
   const result = db
     .prepare(
       'DELETE FROM toe_reminder_items WHERE id = ? AND user_id = ? AND is_sent = 0',
@@ -53,14 +53,14 @@ export function cancelReminder(db: Database.Database, id: number, userId: string
   return result.changes > 0;
 }
 
-export function getDueReminders(db: Database.Database): ReminderItem[] {
+export function getDueReminders(db: DatabaseSync): ReminderItem[] {
   return db
     .prepare(
       "SELECT * FROM toe_reminder_items WHERE trigger_at <= datetime('now', 'utc') AND is_sent = 0",
     )
-    .all() as ReminderItem[];
+    .all() as unknown as ReminderItem[];
 }
 
-export function markSent(db: Database.Database, id: number): void {
+export function markSent(db: DatabaseSync, id: number): void {
   db.prepare('UPDATE toe_reminder_items SET is_sent = 1 WHERE id = ?').run(id);
 }

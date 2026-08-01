@@ -11,13 +11,7 @@ importers:
       '@fluxerjs/core':
         specifier: ^2.1.0
         version: 2.1.0
-      better-sqlite3:
-        specifier: ^13.0.2
-        version: 13.0.2
     devDependencies:
-      '@types/better-sqlite3':
-        specifier: ^7.6.13
-        version: 7.6.13
       '@types/node':
         specifier: ^26.1.2
         version: 26.1.2
@@ -54,9 +48,6 @@ packages:
   '@fluxerjs/ws@2.1.0':
     resolution: {integrity: sha512-Ao69Nw5LXlBLJzGZpNz4UhtmZIN4/VZ/ksZFLHnQE8Kac3k7zG5nDnQm9uUo0s5sMDyJo0/JYP0siZEDZq/77g==}
     engines: {node: '>=22.13.0'}
-
-  '@types/better-sqlite3@7.6.13':
-    resolution: {integrity: sha512-NMv9ASNARoKksWtsq/SHakpYAYnhBrQgGD8zkLYk/jaK8jUGn08CfEdTRgYhMypUQAfzSP8W6gNLe0q19/t4VA==}
 
   '@types/node@26.1.2':
     resolution: {integrity: sha512-Vu4a5UFA9rIIFJ7rB/Vaafh9lrCQszopTCx6KjFboXTGQbPNasehVR5TEiithSDGyd1DEiUByggTZsg8jukeIg==}
@@ -181,14 +172,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  better-sqlite3@13.0.2:
-    resolution: {integrity: sha512-jW6oufeDhXZaiX9Lw5A+oerVClx4iFrI6uDj1zu7SqUAjak9vbJvA0NEcKLNxHiQHb6kYCoFzzXYV0YOauhV3g==}
-    engines: {node: '>=22'}
-
-  node-addon-api@8.9.0:
-    resolution: {integrity: sha512-ekZMeaaIzSQTSpr7X2X3iJM7lTzgnx8ahAG9pJfT/7+14mlEM8ZYQ9cgCDvSSRbReFK0oHli3WrZdCiRsgAT9Q==}
-    engines: {node: ^18 || ^20 || >= 21}
-
   typescript@7.0.2:
     resolution: {integrity: sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA==}
     engines: {node: '>=16.20.0'}
@@ -254,10 +237,6 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@types/better-sqlite3@7.6.13':
-    dependencies:
-      '@types/node': 26.1.2
-
   '@types/node@26.1.2':
     dependencies:
       undici-types: 8.3.0
@@ -321,12 +300,6 @@ snapshots:
 
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
-
-  better-sqlite3@13.0.2:
-    dependencies:
-      node-addon-api: 8.9.0
-
-  node-addon-api@8.9.0: {}
 
   typescript@7.0.2:
     optionalDependencies:

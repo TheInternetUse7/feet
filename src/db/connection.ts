@@ -1,10 +1,10 @@
-import Database from 'better-sqlite3';
+import { DatabaseSync } from 'node:sqlite';
 import path from 'node:path';
 
-export function createDatabase(): Database.Database {
+export function createDatabase(): DatabaseSync {
   const dbPath = process.env.DB_PATH ?? path.resolve('feet.db');
-  const db = new Database(dbPath);
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
+  const db = new DatabaseSync(dbPath);
+  db.exec('PRAGMA journal_mode = WAL');
+  db.exec('PRAGMA foreign_keys = ON');
   return db;
 }
