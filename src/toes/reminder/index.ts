@@ -3,6 +3,7 @@ import type { ToeModule, ToeContext } from "../../types/toe.js";
 import type { Message } from "@fluxerjs/core";
 import * as service from "./service.js";
 import { startScheduler } from "./scheduler.js";
+import { parseUtcDbString } from "../../db/time.js";
 
 const DURATION_RE = /^(\d+)(s|m|h|d)$/;
 
@@ -95,7 +96,7 @@ const reminderToe: ToeModule = {
           items
             .map(
               (i) =>
-                `\`#${i.id}\` <t:${Math.floor(new Date(i.trigger_at).getTime() / 1000)}:R> — ${i.message}`,
+                `\`#${i.id}\` <t:${Math.floor(parseUtcDbString(i.trigger_at).getTime() / 1000)}:R> — ${i.message}`,
             )
             .join("\n"),
         );
