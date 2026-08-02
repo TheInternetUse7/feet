@@ -18,6 +18,7 @@
     "check": "pnpm typecheck && pnpm lint && pnpm format:check"
   },
   "dependencies": {
+    "@extractus/feed-extractor": "^7.2.1",
     "@fluxerjs/core": "^2.1.0"
   },
   "devDependencies": {

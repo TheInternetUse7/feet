@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@extractus/feed-extractor':
+        specifier: ^7.2.1
+        version: 7.2.1
       '@fluxerjs/core':
         specifier: ^2.1.0
         version: 2.1.0
@@ -26,6 +29,10 @@ importers:
         version: 7.0.2
 
 packages:
+
+  '@extractus/feed-extractor@7.2.1':
+    resolution: {integrity: sha512-vc84NZST31wLDTesAkmHL8GBxSB2zw2/h9ZKiQMB71az13sC65EeAcDeLJ2z3atsIhtxESnCMaKmQdOrFiFLcg==}
+    engines: {node: '>= 20'}
 
   '@fluxerjs/builders@2.1.0':
     resolution: {integrity: sha512-qxn5zi9rzcTKBMQiENXPKf7t2Eg4+BB9SoAN64IufrNnUBojHOgaIwUY5DXansd/K0W0UpvsQHSgA25qrMqUaw==}
@@ -54,6 +61,9 @@ packages:
   '@fluxerjs/ws@2.1.0':
     resolution: {integrity: sha512-Ao69Nw5LXlBLJzGZpNz4UhtmZIN4/VZ/ksZFLHnQE8Kac3k7zG5nDnQm9uUo0s5sMDyJo0/JYP0siZEDZq/77g==}
     engines: {node: '>=22.13.0'}
+
+  '@nodable/entities@3.0.0':
+    resolution: {integrity: sha512-8L9xFeTYKhm49xfIypoe2W5wV1m/3Z58kT+7kR9A8OyFxcPduI4VmxaUMQyKYrRjUoLLSXv6EKKID5Tvj9cUVw==}
 
   '@oxfmt/binding-android-arm-eabi@0.61.0':
     resolution: {integrity: sha512-BaS+1OVvg9sr+Xav0+KdWedQRcAzrdoEcwMZeqoc2F6ieC1s/t5eM35YQoRPQ7vAqkZ+p3tbQb1r9I9mrV5oGA==}
@@ -299,6 +309,10 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@pwshub/bellajs@13.0.2':
+    resolution: {integrity: sha512-OWOaE7Ieufo7VMv957iahOzv/w5oXyyXO28Jh2x6rLU96ZLqC508kAKTgdMJRXgVjda2s+/0C6Kno+k16OmJsQ==}
+    engines: {bun: '>=1.0.0', node: '>=20.0.0'}
+
   '@types/node@26.1.2':
     resolution: {integrity: sha512-Vu4a5UFA9rIIFJ7rB/Vaafh9lrCQszopTCx6KjFboXTGQbPNasehVR5TEiithSDGyd1DEiUByggTZsg8jukeIg==}
 
@@ -422,6 +436,22 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  anynum@1.0.1:
+    resolution: {integrity: sha512-N6//FLET/tXYNM/F6ABca1oH6fWB+KlTt909Le28WMDBk8oaT4vY17DCrwg2MvmuqUKt3Ni4N5dGJ/EoBgcO6A==}
+
+  fast-xml-builder@1.3.0:
+    resolution: {integrity: sha512-F74cZEdCvuw9P41GAC3rod4X04jjWGM1JPEv/GWSqFTWLsdyMSBMBMlm9Hk3GLBgLBbdBNY8yee0pQh2RBVESQ==}
+
+  fast-xml-parser@5.10.1:
+    resolution: {integrity: sha512-IEMIf7298kXuZSRFoGfMYrl7is8LpavODgbNz1cwIudv7KwVFnuU+UsMporfq6PD6aXSlawZlARiA3UywCTfMw==}
+    hasBin: true
+
+  html-entities@2.6.0:
+    resolution: {integrity: sha512-kig+rMn/QOVRvr7c86gQ8lWXq+Hkv6CbAH1hLu+RG338StTpE8Z0b44SDVaqVu7HGKf27frdmUYEs9hTUX/cLQ==}
+
+  is-unsafe@2.0.0:
+    resolution: {integrity: sha512-2LdV822R+wmI86unXA93WCFpL6g+av8ynWk0nrHyJqGop5VoocYsSLFgN8jrfalT6iGeLNM4KXuVSsULP53kEA==}
+
   oxfmt@0.61.0:
     resolution: {integrity: sha512-DxdHBEMYpcEnHoUHjjOigUqV2TYKsvxLwUPXnVYBjgFdqrcQ/91OtwubtZ2PUodCs3sStI8R5Qw3fKNGK4e8wQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -447,6 +477,13 @@ packages:
         optional: true
       vite-plus:
         optional: true
+
+  path-expression-matcher@1.6.2:
+    resolution: {integrity: sha512-enSlaiat05iasnzmgNxRj8reFdj3puY2QpNgP1aPIaVfT6nn9ICuPoFlKHk8EN22HcwewshO+mN2DGbkCEOtqQ==}
+    engines: {node: '>=14.0.0'}
+
+  strnum@2.4.1:
+    resolution: {integrity: sha512-M9eUSMT2dCB2cTNPG7UYj6KuK7RJR2SN2+yCV/fTW3xzTCS6EaGZ5pSMgDIjB7r8zSfTGk+dvvn9rTjpVS9Mwg==}
 
   tinypool@2.1.0:
     resolution: {integrity: sha512-Pugqs6M0m7Lv1I7FtxN4aoyToKg1C4tu+/381vH35y8oENM/Ai7f7C4StcoK4/+BSw9ebcS8jRiVrORFKCALLw==}
@@ -476,7 +513,17 @@ packages:
       utf-8-validate:
         optional: true
 
+  xml-naming@0.3.0:
+    resolution: {integrity: sha512-ghig2TBE/H11aOVgmahA3MhimvkBr6JIYknH/Dhdk10nXwdbIqBJsbfMxpvFPG8bAw77gN29aQWvKpmVoPlvPQ==}
+    engines: {node: '>=16.0.0'}
+
 snapshots:
+
+  '@extractus/feed-extractor@7.2.1':
+    dependencies:
+      '@pwshub/bellajs': 13.0.2
+      fast-xml-parser: 5.10.1
+      html-entities: 2.6.0
 
   '@fluxerjs/builders@2.1.0':
     dependencies:
@@ -516,6 +563,8 @@ snapshots:
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
+
+  '@nodable/entities@3.0.0': {}
 
   '@oxfmt/binding-android-arm-eabi@0.61.0':
     optional: true
@@ -631,6 +680,8 @@ snapshots:
   '@oxlint/binding-win32-x64-msvc@1.76.0':
     optional: true
 
+  '@pwshub/bellajs@13.0.2': {}
+
   '@types/node@26.1.2':
     dependencies:
       undici-types: 8.3.0
@@ -695,6 +746,26 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
+  anynum@1.0.1: {}
+
+  fast-xml-builder@1.3.0:
+    dependencies:
+      path-expression-matcher: 1.6.2
+      xml-naming: 0.3.0
+
+  fast-xml-parser@5.10.1:
+    dependencies:
+      '@nodable/entities': 3.0.0
+      fast-xml-builder: 1.3.0
+      is-unsafe: 2.0.0
+      path-expression-matcher: 1.6.2
+      strnum: 2.4.1
+      xml-naming: 0.3.0
+
+  html-entities@2.6.0: {}
+
+  is-unsafe@2.0.0: {}
+
   oxfmt@0.61.0:
     dependencies:
       tinypool: 2.1.0
@@ -741,6 +812,12 @@ snapshots:
       '@oxlint/binding-win32-ia32-msvc': 1.76.0
       '@oxlint/binding-win32-x64-msvc': 1.76.0
 
+  path-expression-matcher@1.6.2: {}
+
+  strnum@2.4.1:
+    dependencies:
+      anynum: 1.0.1
+
   tinypool@2.1.0: {}
 
   typescript@7.0.2:
@@ -771,3 +848,5 @@ snapshots:
   undici@7.29.0: {}
 
   ws@8.21.1: {}
+
+  xml-naming@0.3.0: {}
