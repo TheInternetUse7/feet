@@ -18,6 +18,16 @@ const BADGES: Array<{ bit: bigint; label: string }> = [
   { bit: UserFlagsBits.FriendlyBot, label: "Friendly Bot" },
 ];
 
+async function replyAmbiguous(message: Message, query: string, matches: User[]): Promise<null> {
+  const lines = matches
+    .slice(0, 5)
+    .map((u) => `**${resolve.userDisplayName(u)}** — \`<@${u.id}>\``);
+  await message.reply(
+    `Multiple users match **"${query}"**:\n${lines.join("\n")}\n\nMention one or paste their ID instead.`,
+  );
+  return null;
+}
+
 async function resolveTargetUser(
   message: Message,
   ctx: ToeContext,
@@ -41,15 +51,19 @@ async function resolveTargetUser(
 
   const search = resolve.searchUserByName(ctx.client, query);
   if (search.kind === "found") return search.user;
+  if (search.kind === "ambiguous") return replyAmbiguous(message, query, search.matches);
 
-  if (search.kind === "ambiguous") {
-    const lines = search.matches
-      .slice(0, 5)
-      .map((u) => `**${resolve.userDisplayName(u)}** — \`<@${u.id}>\``);
-    await message.reply(
-      `Multiple users match **"${query}"**:\n${lines.join("\n")}\n\nMention one or paste their ID instead.`,
-    );
-    return null;
+  if (message.guildId) {
+    try {
+      const guild = await resolve.fetchGuild(ctx.client, message.guildId);
+      const serverSearch = await resolve.searchServerMembers(guild, query);
+      if (serverSearch.kind === "found") return serverSearch.user;
+      if (serverSearch.kind === "ambiguous") {
+        return replyAmbiguous(message, query, serverSearch.matches);
+      }
+    } catch {
+      // Couldn't query the server's member index — fall through to not found.
+    }
   }
 
   await message.reply(
