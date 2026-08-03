@@ -1,6 +1,7 @@
 services:
   feet-bot:
     build: .
+    image: feet-bot
     container_name: feet-bot
     restart: unless-stopped
     volumes:
@@ -8,3 +9,4 @@ services:
       - feet-data:/app/data
 volumes:
   feet-data:
+    name: feet-data
