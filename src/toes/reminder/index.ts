@@ -3,7 +3,7 @@ import type { ToeModule, ToeContext } from "../../types/toe.js";
 import type { Message } from "@fluxerjs/core";
 import * as service from "./service.js";
 import { startScheduler } from "./scheduler.js";
-import { parseUtcDbString } from "../../db/time.js";
+import { formatDateTimestamp, parseUtcDbString } from "../../db/time.js";
 
 const DURATION_RE = /^(\d+)(s|m|h|d)$/;
 
@@ -78,7 +78,7 @@ const reminderToe: ToeModule = {
       );
 
       await message.reply(
-        `Reminder #${item.id} set for <t:${Math.floor(triggerAt.getTime() / 1000)}:R>: **${item.message}**`,
+        `Reminder #${item.id} set for ${formatDateTimestamp(triggerAt, "R")}: **${item.message}**`,
       );
       return;
     }
@@ -96,7 +96,7 @@ const reminderToe: ToeModule = {
           items
             .map(
               (i) =>
-                `\`#${i.id}\` <t:${Math.floor(parseUtcDbString(i.trigger_at).getTime() / 1000)}:R> — ${i.message}`,
+                `\`#${i.id}\` ${formatDateTimestamp(parseUtcDbString(i.trigger_at), "R")} — ${i.message}`,
             )
             .join("\n"),
         );

@@ -4,17 +4,14 @@ import type { Message } from "@fluxerjs/core";
 import * as service from "./service.js";
 import { startScheduler, postNewItems, pollFeed } from "./scheduler.js";
 import { fetchFeed } from "./fetcher.js";
-import { parseUtcDbString } from "../../db/time.js";
+import { formatDateTimestamp, parseUtcDbString } from "../../db/time.js";
+import { capList } from "../../shared/list.js";
+import { parsePositiveId } from "../../shared/id.js";
 
-const ID_RE = /^[1-9]\d*$/;
 const CHANNEL_MENTION_RE = /^<#(\d+)>$/;
 const LIST_LIMIT = 25;
 const BACKLOG_PAGE_SIZE = 10;
 const MAX_POST_LIMIT = 50;
-
-function parseId(str: string | undefined): number | null {
-  return str !== undefined && ID_RE.test(str) ? parseInt(str, 10) : null;
-}
 
 function resolveChannelId(client: Client, ref: string | undefined): string | null {
   if (!ref) return null;
@@ -105,7 +102,7 @@ const rssToe: ToeModule = {
     }
 
     if (sub === "remove") {
-      const id = parseId(args[1]);
+      const id = parsePositiveId(args[1]);
       if (id === null) {
         await message.reply("Usage: `.rss remove <id>`");
         return;
@@ -121,19 +118,15 @@ const rssToe: ToeModule = {
         await message.reply("No feeds subscribed. Add one with `.rss add <url>`.");
         return;
       }
-      const shown = feeds.slice(0, LIST_LIMIT);
-      const lines = shown.map((f) => {
+      const lines = capList(feeds, LIST_LIMIT, (f) => {
         const limit = f.post_limit === 0 ? "∞" : String(f.post_limit);
         const header = `\`#${f.id}\` **${f.title}** → <#${f.channel_id}> (limit ${limit})`;
         const meta = f.last_fetched_at
-          ? `  ${f.url} · fetched <t:${Math.floor(parseUtcDbString(f.last_fetched_at).getTime() / 1000)}:R>`
+          ? `  ${f.url} · fetched ${formatDateTimestamp(parseUtcDbString(f.last_fetched_at), "R")}`
           : `  ${f.url}`;
         const error = f.last_error ? `  ⚠️ ${f.last_error}` : null;
         return [header, meta, error].filter(Boolean).join("\n");
       });
-      if (feeds.length > LIST_LIMIT) {
-        lines.push(`...and ${feeds.length - LIST_LIMIT} more`);
-      }
       const embed = new EmbedBuilder()
         .setTitle("Subscribed Feeds")
         .setColor(0x5865f2)
@@ -143,7 +136,7 @@ const rssToe: ToeModule = {
     }
 
     if (sub === "limit") {
-      const id = parseId(args[1]);
+      const id = parsePositiveId(args[1]);
       const n = parseInt(args[2], 10);
       if (id === null || isNaN(n) || n < 0 || n > MAX_POST_LIMIT) {
         await message.reply(
@@ -165,7 +158,7 @@ const rssToe: ToeModule = {
     }
 
     if (sub === "backlog") {
-      const id = parseId(args[1]);
+      const id = parsePositiveId(args[1]);
       if (id === null) {
         await message.reply("Usage: `.rss backlog <id> [page]`");
         return;
@@ -191,7 +184,7 @@ const rssToe: ToeModule = {
       const lines = items.map((i) => {
         const link = i.link ? `[${i.title}](${i.link})` : i.title;
         const when = i.published_at
-          ? ` · <t:${Math.floor(parseUtcDbString(i.published_at).getTime() / 1000)}:R>`
+          ? ` · ${formatDateTimestamp(parseUtcDbString(i.published_at), "R")}`
           : "";
         return `${link}${when}`;
       });

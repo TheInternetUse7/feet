@@ -2,13 +2,10 @@ import { EmbedBuilder } from "@fluxerjs/core";
 import type { ToeModule, ToeContext } from "../../types/toe.js";
 import type { Message } from "@fluxerjs/core";
 import * as service from "./service.js";
+import { capList } from "../../shared/list.js";
+import { parsePositiveId } from "../../shared/id.js";
 
-const ID_RE = /^[1-9]\d*$/;
 const LIST_LIMIT = 20;
-
-function parseId(str: string | undefined): number | null {
-  return str !== undefined && ID_RE.test(str) ? parseInt(str, 10) : null;
-}
 
 const todoToe: ToeModule = {
   name: "todo",
@@ -49,11 +46,7 @@ const todoToe: ToeModule = {
         await message.reply(showDone ? "No completed tasks." : "No pending tasks.");
         return;
       }
-      const shown = items.slice(0, LIST_LIMIT);
-      const lines = shown.map((i) => `\`#${i.id}\` ${i.task}`);
-      if (items.length > LIST_LIMIT) {
-        lines.push(`...and ${items.length - LIST_LIMIT} more`);
-      }
+      const lines = capList(items, LIST_LIMIT, (i) => `\`#${i.id}\` ${i.task}`);
       const embed = new EmbedBuilder()
         .setTitle(showDone ? "Completed Tasks" : "Pending Tasks")
         .setColor(showDone ? 0x57f287 : 0x5865f2)
@@ -63,7 +56,7 @@ const todoToe: ToeModule = {
     }
 
     if (sub === "done" || sub === "remove") {
-      const id = parseId(args[1]);
+      const id = parsePositiveId(args[1]);
       if (id === null) {
         await message.reply(`Usage: \`.todo ${sub} <id>\``);
         return;

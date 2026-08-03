@@ -5,8 +5,10 @@ import {
   type Client,
   type Guild,
   type GuildMember,
+  type Message,
   type User,
 } from "@fluxerjs/core";
+import type { ToeContext } from "../types/toe.js";
 
 export const MAX_SIZE = 4096;
 
@@ -120,4 +122,105 @@ export function userDisplayName(user: User): string {
 
 export function formatUsername(user: User): string {
   return user.discriminator !== "0" ? `${user.username}#${user.discriminator}` : user.username;
+}
+
+export async function replyAmbiguous(
+  message: Message,
+  query: string,
+  matches: User[],
+): Promise<null> {
+  const lines = matches.slice(0, 5).map((u) => `**${userDisplayName(u)}** — \`<@${u.id}>\``);
+  await message.reply(
+    `Multiple users match **"${query}"**:\n${lines.join("\n")}\n\nMention one or paste their ID instead.`,
+  );
+  return null;
+}
+
+export async function resolveTargetUser(
+  message: Message,
+  ctx: ToeContext,
+  query: string,
+): Promise<User | null> {
+  if (query === "" || query.toLowerCase() === "me") return message.author;
+
+  const mentionId = mentionToId(query);
+  if (mentionId !== null) {
+    const cached = ctx.client.users.get(mentionId);
+    if (cached) return cached;
+    try {
+      return await fetchUser(ctx.client, mentionId);
+    } catch {
+      await message.reply(
+        `Couldn't find a user with ID \`${mentionId}\`. They may have deleted their account, or the bot can't see them.`,
+      );
+      return null;
+    }
+  }
+
+  const search = searchUserByName(ctx.client, query);
+  if (search.kind === "found") return search.user;
+  if (search.kind === "ambiguous") return replyAmbiguous(message, query, search.matches);
+
+  if (message.guildId) {
+    try {
+      const guild = await fetchGuild(ctx.client, message.guildId);
+      const serverSearch = await searchServerMembers(guild, query);
+      if (serverSearch.kind === "found") return serverSearch.user;
+      if (serverSearch.kind === "ambiguous") {
+        return replyAmbiguous(message, query, serverSearch.matches);
+      }
+    } catch {
+      // Couldn't query the server's member index — fall through to not found.
+    }
+  }
+
+  await message.reply(
+    `Couldn't find a user matching **"${query}"**. Mention them or paste their ID instead.`,
+  );
+  return null;
+}
+
+export interface GuildResolveHints {
+  noContext?: string;
+  notFound?: (guildId: string) => string;
+  loadFailed: string;
+}
+
+export async function resolveGuild(
+  message: Message,
+  ctx: ToeContext,
+  guildIdArg: string | undefined,
+  hints: GuildResolveHints,
+): Promise<Guild | null> {
+  if (guildIdArg !== undefined) {
+    if (!isSnowflake(guildIdArg)) {
+      await message.reply(`Invalid guild ID: \`${guildIdArg}\`. Expected a 17-20 digit snowflake.`);
+      return null;
+    }
+    try {
+      return await fetchGuild(ctx.client, guildIdArg);
+    } catch (err) {
+      if (isNotFoundError(err)) {
+        await message.reply(
+          hints.notFound ? hints.notFound(guildIdArg) : `Couldn't find guild \`${guildIdArg}\`.`,
+        );
+      } else {
+        await message.reply(
+          `Failed to fetch guild \`${guildIdArg}\` (network error). Try again later.`,
+        );
+      }
+      return null;
+    }
+  }
+
+  if (!message.guildId) {
+    await message.reply(hints.noContext ?? "This command only works in a server.");
+    return null;
+  }
+  try {
+    return await fetchGuild(ctx.client, message.guildId);
+  } catch {
+    await message.reply(hints.loadFailed);
+    return null;
+  }
 }
