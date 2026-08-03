@@ -30,7 +30,8 @@
   },
   "dependencies": {
     "@extractus/feed-extractor": "^7.2.1",
-    "@fluxerjs/core": "^2.1.0"
+    "@fluxerjs/core": "^2.2.0",
+    "@fluxerjs/util": "^2.2.0"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
@@ -39,7 +40,7 @@
     "typescript": "^7.0.2"
   },
   "engines": {
-    "node": ">=22.5"
+    "node": ">=22.13"
   },
   "packageManager": "pnpm@11.18.0+sha512.33d83c77da82f49fba836925c6f1b841181ec3132b670639bd012f7075f5c7cf634c5f870147c19aae7478fac01df09d8892e880454896edd23ee9b33757563c"
 }

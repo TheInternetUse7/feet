@@ -12,6 +12,7 @@ Features are drop-in plugins called **TOEs** (Task/Operation Extensions). Each T
 | **reminder** | Time-based reminders delivered to a channel or DM                           |
 | **rss**      | Subscribe to RSS/Atom feeds; new items are posted as embeds every 5 minutes |
 | **avatar**   | Show user avatars and server icons                                          |
+| **info**     | Show user and server info (`.whois`, `.serverinfo`)                         |
 
 Data lives in a local SQLite database (`node:sqlite`, WAL mode) — no external services required beyond Fluxer itself.
 
@@ -93,6 +94,13 @@ New items are posted to the subscribed channel as embeds; all feeds are polled e
 | `.avatar member <user>` | Show a member's server-specific avatar (falls back to global) |
 | `.avatar guild`         | Show the current server's icon                                |
 | `.avatar guild <id>`    | Show another server's icon (bot must be in it)                |
+
+### `.whois` / `.serverinfo`
+
+| Command            | Description                                                                                                            |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `.whois [user]`    | Show a user's info: ID, account creation date, badges, join date and roles (in a server), banner                       |
+| `.serverinfo [id]` | Show a server's info: ID, owner, creation date, member/channel/role/emoji/sticker counts, verification level, features |
 
 ## Docker
 
