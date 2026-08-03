@@ -1,0 +1,10 @@
+services:
+  feet-bot:
+    build: .
+    container_name: feet-bot
+    restart: unless-stopped
+    volumes:
+      - ./.env:/app/.env:ro
+      - feet-data:/app/data
+volumes:
+  feet-data:
