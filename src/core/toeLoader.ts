@@ -8,6 +8,8 @@ import type { ToeModule, ToeContext } from "../types/toe.js";
 
 const PREFIX = ".";
 
+let messageHandlerAttached = false;
+
 export async function loadToes(client: Client, db: DatabaseSync): Promise<Map<string, ToeModule>> {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const toesDir = path.resolve(__dirname, "..", "toes");
@@ -47,40 +49,43 @@ export async function loadToes(client: Client, db: DatabaseSync): Promise<Map<st
     }
   }
 
-  client.on(Events.MessageCreate, async (message: Message) => {
-    if (message.author.bot || !message.content) return;
+  if (!messageHandlerAttached) {
+    messageHandlerAttached = true;
+    client.on(Events.MessageCreate, async (message: Message) => {
+      if (message.author.bot || !message.content) return;
 
-    const parsed = parsePrefixCommand(message.content, PREFIX);
-    if (!parsed) return;
+      const parsed = parsePrefixCommand(message.content, PREFIX);
+      if (!parsed) return;
 
-    const { command, args } = parsed;
+      const { command, args } = parsed;
 
-    if (command === "help") {
-      if (args[0]) {
-        const toe = modules.get(args[0]);
-        await message.reply(toe ? toe.help : `Unknown command: ${args[0]}`);
-      } else {
-        const lines = Array.from(modules.values()).map(
-          (t) => `**${PREFIX}${t.prefixCommands[0]}** — ${t.description}`,
-        );
-        await message.reply(
-          lines.length
-            ? `${lines.join("\n")}\n\nUse \`.help <command>\` for details.`
-            : "No commands loaded.",
-        );
+      if (command === "help") {
+        if (args[0]) {
+          const toe = modules.get(args[0]);
+          await message.reply(toe ? toe.help : `Unknown command: ${args[0]}`);
+        } else {
+          const lines = Array.from(modules.values()).map(
+            (t) => `**${PREFIX}${t.prefixCommands[0]}** — ${t.description}`,
+          );
+          await message.reply(
+            lines.length
+              ? `${lines.join("\n")}\n\nUse \`.help <command>\` for details.`
+              : "No commands loaded.",
+          );
+        }
+        return;
       }
-      return;
-    }
 
-    const toe = prefixMap.get(command);
-    if (!toe) return;
+      const toe = prefixMap.get(command);
+      if (!toe) return;
 
-    try {
-      await toe.execute(message, ctx, args);
-    } catch (err) {
-      console.error(`[TOE] Error in ${toe.name}.${command}:`, err);
-    }
-  });
+      try {
+        await toe.execute(message, ctx, args);
+      } catch (err) {
+        console.error(`[TOE] Error in ${toe.name}.${command}:`, err);
+      }
+    });
+  }
 
   return modules;
 }
