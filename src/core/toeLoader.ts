@@ -14,10 +14,7 @@ const cmdLog = log("cmd");
 
 let messageHandlerAttached = false;
 
-export async function loadToes(
-  client: Client,
-  db: DatabaseSync,
-): Promise<Map<string, ToeModule>> {
+export async function loadToes(client: Client, db: DatabaseSync): Promise<Map<string, ToeModule>> {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const toesDir = path.resolve(__dirname, "..", "toes");
   const entries = await fs.readdir(toesDir, { withFileTypes: true });
@@ -33,11 +30,7 @@ export async function loadToes(
       const mod = await import(pathToFileURL(toePath).href);
       const toe: ToeModule = mod.default ?? mod.toe;
 
-      if (
-        !toe ||
-        typeof toe.name !== "string" ||
-        typeof toe.execute !== "function"
-      ) {
+      if (!toe || typeof toe.name !== "string" || typeof toe.execute !== "function") {
         toeLog.warn(`Skipping ${entry.name}: invalid module shape`);
         continue;
       }
@@ -85,9 +78,7 @@ export async function loadToes(
         } else {
           const embed = new EmbedBuilder()
             .setTitle("FEET Help")
-            .setDescription(
-              "Run `.help <command>` for details about a command.",
-            )
+            .setDescription("Run `.help <command>` for details about a command.")
             .setColor(0x57f287)
             .setFooter({ text: REPO_URL });
           for (const toe of modules.values()) {
@@ -107,9 +98,7 @@ export async function loadToes(
       const toe = prefixMap.get(command);
       if (!toe) return;
 
-      cmdLog.debug(
-        `.${command} by ${message.author.id} in ${message.channelId}`,
-      );
+      cmdLog.debug(`.${command} by ${message.author.id} in ${message.channelId}`);
 
       try {
         await toe.execute(message, ctx, args);
