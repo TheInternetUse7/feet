@@ -13,6 +13,9 @@ FROM node:24-slim
 
 WORKDIR /app
 
+ARG GIT_COMMIT=dev
+ENV GIT_COMMIT=$GIT_COMMIT
+
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 

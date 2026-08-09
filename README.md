@@ -92,6 +92,7 @@ The bot connects to Fluxer, creates its database, and auto-loads every TOE found
 | `DB_PATH`          | no       | `./feet.db` | Where the SQLite database file lives (the Docker compose file sets it to `/app/data/feet.db`) |
 | `LOG_LEVEL`        | no       | `info`      | Minimum log level: `debug`, `info`, `warn`, or `error`                                        |
 | `LOG_FILE`         | no       | —           | Optional path to append plain (uncolored) log lines to, in addition to stdout                 |
+| `GIT_COMMIT`       | no       | `dev`       | Commit hash shown by `.about`; baked in by the Docker CI build (falls back to local `.git`)   |
 
 ## Commands
 
@@ -143,12 +144,13 @@ New items are posted to the subscribed channel as embeds; all feeds are polled e
 | `.avatar guild`         | Show the current server's icon                                |
 | `.avatar guild <id>`    | Show another server's icon (bot must be in it)                |
 
-### `.whois` / `.serverinfo`
+### `.whois` / `.serverinfo` / `.about`
 
 | Command            | Description                                                                                                            |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | `.whois [user]`    | Show a user's info: ID, account creation date, badges, join date and roles (in a server), banner                       |
 | `.serverinfo [id]` | Show a server's info: ID, owner, creation date, member/channel/role/emoji/sticker counts, verification level, features |
+| `.about`           | Show info about the bot: developer, running commit, source code and support community links                            |
 
 ## Development
 

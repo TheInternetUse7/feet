@@ -11,6 +11,14 @@ import type { ToeModule, ToeContext } from "../../types/toe.js";
 import { formatDateTimestamp, snowflakeDate } from "../../db/time.js";
 import { capList } from "../../shared/list.js";
 import {
+  BOT_NAME,
+  BOT_TAGLINE,
+  DEV_USER_ID,
+  REPO_URL,
+  SUPPORT_URL,
+  runningCommit,
+} from "../../shared/meta.js";
+import {
   MAX_SIZE,
   fetchMember,
   formatUsername,
@@ -241,14 +249,33 @@ async function showServerinfo(message: Message, ctx: ToeContext, args: string[])
   await message.reply({ embeds: [embed] });
 }
 
+async function showAbout(message: Message) {
+  const embed = new EmbedBuilder()
+    .setTitle(BOT_NAME)
+    .setDescription(BOT_TAGLINE)
+    .setColor(0x57f287)
+    .addFields(
+      { name: "Developer", value: `<@${DEV_USER_ID}>`, inline: true },
+      { name: "Running commit", value: `\`${runningCommit()}\``, inline: true },
+      {
+        name: "Links",
+        value: `[Source code](${REPO_URL}) · [Support community](${SUPPORT_URL})`,
+        inline: false,
+      },
+    )
+    .setFooter({ text: "Open-source bot for Fluxer" });
+  await message.reply({ embeds: [embed] });
+}
+
 const infoToe: ToeModule = {
   name: "info",
   description: "Show user and server info",
   help: [
     "**`.whois [user]`** - Show info about a user (mention, ID, or name)",
     "**`.serverinfo [id]`** - Show info about this server (or another server the bot is in, by ID)",
+    "**`.about`** - Show info about this bot (source, commit, support)",
   ].join("\n"),
-  prefixCommands: ["whois", "serverinfo"],
+  prefixCommands: ["whois", "serverinfo", "about"],
 
   async execute(message: Message, ctx: ToeContext, args: string[]) {
     const parsed = parsePrefixCommand(message.content, ".");
@@ -256,6 +283,10 @@ const infoToe: ToeModule = {
 
     if (command === "serverinfo") {
       await showServerinfo(message, ctx, args);
+      return;
+    }
+    if (command === "about") {
+      await showAbout(message);
       return;
     }
 

@@ -35,6 +35,8 @@ jobs:
       - uses: docker/build-push-action@v7
         with:
           push: true
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
           tags: |
             ghcr.io/theinternetuse7/feet-bot:latest
             ghcr.io/theinternetuse7/feet-bot:${{ github.sha }}
