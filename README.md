@@ -16,13 +16,59 @@ Features are drop-in plugins called **TOEs** (Task/Operation Extensions). Each T
 
 Data lives in a local SQLite database (`node:sqlite`, WAL mode) — no external services required beyond Fluxer itself.
 
-## Requirements
+## Quick start (Docker)
 
-- **Node.js >= 22.5** (required for the built-in `node:sqlite` module)
-- **pnpm** (Corepack ships with Node)
-- A [Fluxer](https://fluxer.app) bot token
+The easiest way to run FEET is with the prebuilt Docker image.
 
-## Quick start
+**1. Create a directory for the bot and enter it**
+
+```bash
+mkdir ~/feet && cd ~/feet
+```
+
+**2. Download the setup script and run it**
+
+It fetches `compose.yaml` and a starter `.env`.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/TheInternetUse7/feet/master/setup.sh | bash
+```
+
+**3. Set your bot token**
+
+Open `.env` and put in the token from [fluxer.app](https://fluxer.app):
+
+```bash
+nano .env
+```
+
+**4. Start the bot**
+
+```bash
+docker compose up -d
+```
+
+> **Prefer not to pipe a script?** Download it instead:
+>
+> ```bash
+> curl -fsSL -o setup.sh https://raw.githubusercontent.com/TheInternetUse7/feet/master/setup.sh
+> chmod +x setup.sh
+> ./setup.sh
+> ```
+
+## Updating
+
+A new image is built and pushed to ghcr.io on every push to `master`. Pull and restart:
+
+```bash
+docker compose up -d
+```
+
+(`pull_policy: always` in `compose.yaml` pulls the newest image automatically. Tags are available if you want to pin: `:latest`, `:<commit-sha>`, and `:v*` release tags.)
+
+## From source
+
+For development, or running without Docker. Requires **Node.js >= 22.5**, **pnpm** (ships with Corepack), and a [Fluxer](https://fluxer.app) bot token.
 
 ```bash
 git clone https://github.com/TheInternetUse7/feet.git
@@ -40,10 +86,10 @@ The bot connects to Fluxer, creates its database, and auto-loads every TOE found
 
 ### Environment variables
 
-| Variable           | Required | Default     | Description                                             |
-| ------------------ | -------- | ----------- | ------------------------------------------------------- |
-| `FLUXER_BOT_TOKEN` | yes      | —           | Bot token from fluxer.app; the process exits if missing |
-| `DB_PATH`          | no       | `./feet.db` | Where the SQLite database file lives                    |
+| Variable           | Required | Default     | Description                                                                                   |
+| ------------------ | -------- | ----------- | --------------------------------------------------------------------------------------------- |
+| `FLUXER_BOT_TOKEN` | yes      | —           | Bot token from fluxer.app; the process exits if missing                                       |
+| `DB_PATH`          | no       | `./feet.db` | Where the SQLite database file lives (the Docker compose file sets it to `/app/data/feet.db`) |
 
 ## Commands
 
@@ -101,22 +147,6 @@ New items are posted to the subscribed channel as embeds; all feeds are polled e
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | `.whois [user]`    | Show a user's info: ID, account creation date, badges, join date and roles (in a server), banner                       |
 | `.serverinfo [id]` | Show a server's info: ID, owner, creation date, member/channel/role/emoji/sticker counts, verification level, features |
-
-## Docker
-
-A multi-stage `Dockerfile` builds a slim `node:24` image. The container runs as a non-root user and expects the database volume at `/app/data`.
-
-```bash
-docker build -t feet .
-docker run -d \
-  --env-file .env \
-  -e DB_PATH=/app/data/feet.db \
-  -v feet-data:/app/data \
-  --restart unless-stopped \
-  feet
-```
-
-`.env` is not baked into the image — supply it at deploy time (via `--env-file` or your orchestrator) and point `DB_PATH` at `/app/data/feet.db` for persistence.
 
 ## Development
 

@@ -4,6 +4,8 @@ services:
     pull_policy: always
     container_name: feet-bot
     restart: unless-stopped
+    environment:
+      DB_PATH: /app/data/feet.db
     volumes:
       - ./.env:/app/.env:ro
       - feet-data:/app/data
