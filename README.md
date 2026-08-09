@@ -16,6 +16,12 @@ Features are drop-in plugins called **TOEs** (Task/Operation Extensions). Each T
 
 Data lives in a local SQLite database (`node:sqlite`, WAL mode) — no external services required beyond Fluxer itself.
 
+## Hosted bot
+
+Prefer not to host it yourself? Add the hosted FEET bot to your server:
+
+[**Add FEET to your server**](https://web.fluxer.app/oauth2/authorize?client_id=1533128714261377024&scope=bot&permissions=84992)
+
 ## Quick start (Docker)
 
 The easiest way to run FEET is with the prebuilt Docker image.
