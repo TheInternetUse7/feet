@@ -1,6 +1,9 @@
 import type { Client } from "@fluxerjs/core";
 import type { DatabaseSync } from "node:sqlite";
 import * as service from "./service.js";
+import { log } from "../../shared/logger.js";
+
+const logger = log("reminder");
 
 const DM_BLOCKED_CODE = "CANNOT_SEND_MESSAGES_TO_USER";
 
@@ -22,24 +25,24 @@ export function startScheduler(client: Client, db: DatabaseSync): NodeJS.Timeout
   return setInterval(async () => {
     try {
       const due = service.getDueReminders(db);
-      if (due.length > 0) console.log(`[SCHEDULER] Found ${due.length} due reminder(s)`);
+      if (due.length > 0) logger.debug(`Found ${due.length} due reminder(s)`);
       for (const reminder of due) {
         try {
           if (service.getDeliveryMode(db, reminder.user_id) === "dm") {
             const err = await sendViaDm(client, reminder);
             if (!err) {
               service.markSent(db, reminder.id);
-              console.log(`[SCHEDULER] Sent reminder #${reminder.id} via DM`);
+              logger.debug(`Sent reminder #${reminder.id} via DM`);
               continue;
             }
             if (errorCode(err) === DM_BLOCKED_CODE) {
               service.setDeliveryMode(db, reminder.user_id, "channel");
-              console.log(
-                `[SCHEDULER] DMs blocked for user ${reminder.user_id}; delivery mode reverted to channel`,
+              logger.warn(
+                `DMs blocked for user ${reminder.user_id}; delivery mode reverted to channel`,
               );
             }
-            console.warn(
-              `[SCHEDULER] DM failed for reminder #${reminder.id} (${errorCode(err) ?? "unknown"} — ${err.message}), falling back to channel`,
+            logger.warn(
+              `DM failed for reminder #${reminder.id} (${errorCode(err) ?? "unknown"} — ${err.message}), falling back to channel`,
             );
           }
           await client.channels.send(
@@ -47,14 +50,14 @@ export function startScheduler(client: Client, db: DatabaseSync): NodeJS.Timeout
             `<@${reminder.user_id}> Reminder: ${reminder.message}`,
           );
           service.markSent(db, reminder.id);
-          console.log(`[SCHEDULER] Sent reminder #${reminder.id}`);
+          logger.debug(`Sent reminder #${reminder.id}`);
         } catch (err) {
-          console.error(`[SCHEDULER] Failed to send reminder #${reminder.id}:`, err);
+          logger.error(`Failed to send reminder #${reminder.id}:`, err);
           service.markSent(db, reminder.id);
         }
       }
     } catch (err) {
-      console.error(`[SCHEDULER] Error:`, err);
+      logger.error("Error:", err);
     }
   }, 10_000);
 }

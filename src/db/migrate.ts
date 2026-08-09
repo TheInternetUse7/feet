@@ -1,4 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
+import { log } from "../shared/logger.js";
+
+const logger = log("migrate");
 
 export interface Migration {
   version: number;
@@ -32,7 +35,7 @@ export function migrate(db: DatabaseSync, namespace: string, migrations: Migrati
          ON CONFLICT(namespace) DO UPDATE SET version = excluded.version, applied_at = CURRENT_TIMESTAMP`,
       ).run(namespace, migration.version);
       db.exec("COMMIT");
-      console.log(`[MIGRATE] ${namespace} -> v${migration.version}`);
+      logger.info(`${namespace} -> v${migration.version}`);
     } catch (err) {
       db.exec("ROLLBACK");
       throw err;

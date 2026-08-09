@@ -3,6 +3,9 @@ import type { DatabaseSync } from "node:sqlite";
 import * as service from "./service.js";
 import { fetchFeed } from "./fetcher.js";
 import { parseUtcDbString } from "../../db/time.js";
+import { log } from "../../shared/logger.js";
+
+const logger = log("rss");
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
 const PRUNE_INTERVAL_MS = 24 * 60 * 60 * 1000;
@@ -50,7 +53,7 @@ export async function pollFeed(
         await sendItemEmbed(client, feed, item);
         result.posted++;
       } catch (err) {
-        console.error(`[RSS] Failed to post item #${item.id} from feed #${feed.id}:`, err);
+        logger.error(`Failed to post item #${item.id} from feed #${feed.id}:`, err);
       } finally {
         service.markPosted(db, item.id);
       }
@@ -65,12 +68,12 @@ export async function pollFeed(
           `…and ${skipped} more item(s) were skipped for **${feed.title}** — view them with \`.rss backlog ${feed.id}\``,
         );
       } catch (err) {
-        console.error(`[RSS] Failed to send overflow notice for feed #${feed.id}:`, err);
+        logger.error(`Failed to send overflow notice for feed #${feed.id}:`, err);
       }
     }
   } catch (err) {
     service.markFeedError(db, feed.id, err instanceof Error ? err.message : String(err));
-    console.warn(`[RSS] Failed to fetch feed #${feed.id} (${feed.url}):`, err);
+    logger.warn(`Failed to fetch feed #${feed.id} (${feed.url}):`, err);
   }
   return result;
 }
@@ -80,17 +83,15 @@ export function startScheduler(client: Client, db: DatabaseSync): NodeJS.Timeout
     try {
       const result = await postNewItems(client, db);
       if (result.posted > 0 || result.skipped > 0) {
-        console.log(
-          `[RSS] Polled feeds; posted ${result.posted} item(s), skipped ${result.skipped}`,
-        );
+        logger.info(`Polled feeds; posted ${result.posted} item(s), skipped ${result.skipped}`);
       }
       if (Date.now() - lastPruneAt >= PRUNE_INTERVAL_MS) {
         lastPruneAt = Date.now();
         const pruned = service.pruneItems(db, KEEP_ITEMS_PER_FEED);
-        if (pruned > 0) console.log(`[RSS] Pruned ${pruned} old item(s)`);
+        if (pruned > 0) logger.info(`Pruned ${pruned} old item(s)`);
       }
     } catch (err) {
-      console.error(`[RSS] Poll error:`, err);
+      logger.error("Poll error:", err);
     }
   }, POLL_INTERVAL_MS);
 }

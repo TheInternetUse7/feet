@@ -5,8 +5,11 @@ import { Events, parsePrefixCommand } from "@fluxerjs/core";
 import type { Client, Message } from "@fluxerjs/core";
 import type { DatabaseSync } from "node:sqlite";
 import type { ToeModule, ToeContext } from "../types/toe.js";
+import { log } from "../shared/logger.js";
 
 const PREFIX = ".";
+const toeLog = log("toe");
+const cmdLog = log("cmd");
 
 let messageHandlerAttached = false;
 
@@ -27,7 +30,7 @@ export async function loadToes(client: Client, db: DatabaseSync): Promise<Map<st
       const toe: ToeModule = mod.default ?? mod.toe;
 
       if (!toe || typeof toe.name !== "string" || typeof toe.execute !== "function") {
-        console.warn(`[TOE] Skipping ${entry.name}: invalid module shape`);
+        toeLog.warn(`Skipping ${entry.name}: invalid module shape`);
         continue;
       }
 
@@ -41,11 +44,11 @@ export async function loadToes(client: Client, db: DatabaseSync): Promise<Map<st
         prefixMap.set(cmd, toe);
       }
 
-      console.log(
-        `[TOE] Loaded: ${toe.name} (${toe.prefixCommands.map((c) => `${PREFIX}${c}`).join(", ")})`,
+      toeLog.info(
+        `Loaded: ${toe.name} (${toe.prefixCommands.map((c) => `${PREFIX}${c}`).join(", ")})`,
       );
     } catch (err) {
-      console.error(`[TOE] Failed to load ${entry.name}:`, err);
+      toeLog.error(`Failed to load ${entry.name}:`, err);
     }
   }
 
@@ -79,10 +82,12 @@ export async function loadToes(client: Client, db: DatabaseSync): Promise<Map<st
       const toe = prefixMap.get(command);
       if (!toe) return;
 
+      cmdLog.debug(`.${command} by ${message.author.id} in ${message.channelId}`);
+
       try {
         await toe.execute(message, ctx, args);
       } catch (err) {
-        console.error(`[TOE] Error in ${toe.name}.${command}:`, err);
+        toeLog.error(`Error in ${toe.name}.${command}:`, err);
       }
     });
   }

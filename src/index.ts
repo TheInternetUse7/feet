@@ -2,10 +2,13 @@ import { Client, Events } from "@fluxerjs/core";
 import type { ToeModule } from "./types/toe.js";
 import { createDatabase } from "./db/connection.js";
 import { loadToes } from "./core/toeLoader.js";
+import { log } from "./shared/logger.js";
+
+const logger = log("boot");
 
 const token = process.env.FLUXER_BOT_TOKEN;
 if (!token) {
-  console.error("FLUXER_BOT_TOKEN is not set");
+  logger.error("FLUXER_BOT_TOKEN is not set");
   process.exit(1);
 }
 
@@ -14,23 +17,23 @@ const db = createDatabase();
 let toes = new Map<string, ToeModule>();
 
 client.on(Events.Ready, async () => {
-  console.log(`Ready! Logged in as ${client.user?.username}`);
+  logger.info(`Ready! Logged in as ${client.user?.username}`);
   toes = await loadToes(client, db);
-  console.log(`[BOOT] ${toes.size} TOE(s) loaded`);
+  logger.info(`${toes.size} TOE(s) loaded`);
 });
 
 client.on(Events.Error, (err) => {
-  console.error("Client error:", err);
+  logger.error("Client error:", err);
 });
 
 async function shutdown() {
-  console.log("\n[SHUTDOWN] Destroying TOEs...");
+  logger.info("Destroying TOEs...");
   try {
     for (const toe of toes.values()) {
       if (toe.destroy) await toe.destroy();
     }
   } catch (err) {
-    console.error("[SHUTDOWN] TOE destroy failed:", err);
+    logger.error("TOE destroy failed:", err);
   } finally {
     db.close();
     client.destroy();
@@ -41,10 +44,19 @@ async function shutdown() {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
+process.on("unhandledRejection", (reason) => {
+  logger.error("Unhandled rejection:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+  logger.error("Uncaught exception:", err);
+  process.exit(1);
+});
+
 try {
   await client.login(token);
 } catch (err) {
-  console.error("Failed to login:", err);
+  logger.error("Failed to login:", err);
   db.close();
   process.exit(1);
 }

@@ -90,6 +90,8 @@ The bot connects to Fluxer, creates its database, and auto-loads every TOE found
 | ------------------ | -------- | ----------- | --------------------------------------------------------------------------------------------- |
 | `FLUXER_BOT_TOKEN` | yes      | —           | Bot token from fluxer.app; the process exits if missing                                       |
 | `DB_PATH`          | no       | `./feet.db` | Where the SQLite database file lives (the Docker compose file sets it to `/app/data/feet.db`) |
+| `LOG_LEVEL`        | no       | `info`      | Minimum log level: `debug`, `info`, `warn`, or `error`                                        |
+| `LOG_FILE`         | no       | —           | Optional path to append plain (uncolored) log lines to, in addition to stdout                 |
 
 ## Commands
 
